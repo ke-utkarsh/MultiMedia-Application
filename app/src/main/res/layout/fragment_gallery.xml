@@ -6,50 +6,23 @@
     android:layout_height="match_parent"
     tools:context=".ui.gallery.GalleryFragment">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:text="Login"
-        android:textSize="40sp"
-        android:fontFamily="@font/lobster"
-        android:layout_marginTop="100dp"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="MissingConstraints" />
-    <EditText
-        android:id="@+id/email"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="50dp"
-        android:hint="Email"
-        app:layout_constraintBottom_toTopOf="@+id/password"
-        tools:ignore="MissingConstraints" />
-    <EditText
-        android:id="@+id/password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="150dp"
-        android:hint="Enter Password"
-        android:inputType="textPassword"
-        app:layout_constraintBottom_toTopOf="@+id/btnlog"
-        tools:ignore="MissingConstraints" />
+        tools:ignore="MissingConstraints">
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tabLayoutS"
+            android:background="@drawable/grad"
+            android:fontFamily="@font/lobster"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewPagerS"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tabLayoutS"
+            android:layout_centerInParent="true"
+            tools:layout_editor_absoluteX="8dp" />
 
-    <Button
-        android:id="@+id/btnlog"
-        android:layout_width="170dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="120dp"
-        android:text="Login"
-        android:textColor="#ffffff"
-        android:background="@drawable/strokes1"
-        android:bottomLeftRadius="20dp"
-        android:bottomRightRadius="20dp"
-        android:topLeftRadius="20dp"
-        android:topRightRadius="20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="MissingConstraints" />
-
+    </RelativeLayout>
 </android.support.constraint.ConstraintLayout>

@@ -16,7 +16,7 @@
     <fragment
         android:id="@+id/nav_gallery"
         android:name="com.example.projecttwo.ui.gallery.GalleryFragment"
-        android:label="Login"
+        android:label="Login/Signup"
         tools:layout="@layout/fragment_gallery" />
 
     <fragment
