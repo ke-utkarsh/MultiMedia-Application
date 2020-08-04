@@ -22,10 +22,10 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="30dp"
         android:hint="Email"
-        app:layout_constraintBottom_toTopOf="@+id/name"
+        app:layout_constraintBottom_toTopOf="@+id/username"
         tools:ignore="MissingConstraints" />
     <EditText
-        android:id="@+id/name"
+        android:id="@+id/username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="30dp"

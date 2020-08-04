@@ -8,13 +8,13 @@ import android.support.v4.app.FragmentPagerAdapter;
 import com.example.projecttwo.Login;
 import com.example.projecttwo.Signup;
 
- class Tabs2 extends FragmentPagerAdapter {
+ class tabs2 extends FragmentPagerAdapter {
     Context context2;
-    int totalTabs2;
-    public Tabs2(Context c, FragmentManager fm, int totalTabs) {
+    int totaltabs2;
+    public tabs2(Context c, FragmentManager fm, int totaltabs) {
         super(fm);
         context2 = c;
-        this.totalTabs2 = totalTabs;
+        this.totaltabs2 = totaltabs;
     }
     @Override
     public Fragment getItem(int i) {
@@ -31,6 +31,6 @@ import com.example.projecttwo.Signup;
     }
     @Override
     public int getCount() {
-        return totalTabs2;
+        return totaltabs2;
     }
 }

@@ -34,7 +34,7 @@ public class GalleryFragment extends Fragment {
         tabLayouts.addTab(tabLayouts.newTab().setText("Signup"));
         tabLayouts.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        final Tabs2 adapter= new Tabs2(getActivity(),getChildFragmentManager(),tabLayouts.getTabCount());
+        final tabs2 adapter= new tabs2(getActivity(),getChildFragmentManager(),tabLayouts.getTabCount());
         viewPagers.setAdapter(adapter);
 
         viewPagers.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayouts));
