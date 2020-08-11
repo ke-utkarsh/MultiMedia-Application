@@ -1,13 +1,18 @@
 package com.example.projecttwo;
 
 import android.app.ProgressDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -21,6 +26,8 @@ import retrofit2.Response;
 public class Videos extends Fragment {
     RecyclerView recyclerView;
     List<Result> videoListResponseData;
+    ImageButton ib;
+    EditText et;
     public Videos() {}
 
     @Override
@@ -28,6 +35,29 @@ public class Videos extends Fragment {
                              Bundle savedInstanceState) {
         View InputFragmentView = inflater.inflate(R.layout.fragment_videos, container, false);
         recyclerView = (RecyclerView) InputFragmentView.findViewById(R.id.recyclerView);
+        ib=(ImageButton) InputFragmentView.findViewById(R.id.imageButton);
+        et=(EditText) InputFragmentView.findViewById(R.id.editText);
+        ib.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String fet="";
+                fet=et.getText().toString();
+                if(fet.length()>0){
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString("search",fet);
+                    editor.apply();
+                    Fragment frog=new SearchFragment();
+                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                    transaction.replace(R.id.viewPager, frog);
+                    transaction.addToBackStack(null);
+                    transaction.commit();
+                }else{
+                    Toast.makeText(getActivity(), "What do you wanna search?", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
         getVideoDataList();
         return InputFragmentView;
     }
