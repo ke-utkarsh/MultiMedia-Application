@@ -13,6 +13,7 @@
         android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme">
         <activity android:name=".ContactUs"/>
+        <activity android:name=".SearchFragment"/>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"

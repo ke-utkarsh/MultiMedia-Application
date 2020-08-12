@@ -1,15 +1,19 @@
 package com.example.projecttwo;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.example.projecttwo.ui.SearchAdapter;
@@ -20,39 +24,58 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class SearchFragment extends Fragment {
-    RecyclerView recyclerView2;
+public class SearchFragment extends AppCompatActivity {
+
+    String urli;
+    RecyclerView recyclerView;
     List<Result> Data;
+    String code;
+    String url;
 
-
-    public SearchFragment(){}
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View InputFragmentView = inflater.inflate(R.layout.fragment_search, container, false);
-        Toast.makeText(getActivity(), "SET HO GYA", Toast.LENGTH_SHORT).show();
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE); //will hide the title
+        getSupportActionBar().hide(); // hide the title bar
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN); //enable full screen
+        setContentView(R.layout.fragment_search);
 
-        recyclerView2 = (RecyclerView) InputFragmentView.findViewById(R.id.recyclerView2);
+        Intent intent=getIntent();
+        urli=intent.getStringExtra("urli");
+        code=intent.getStringExtra("code");
+        /*SharedPreferences sP=getSharedPreferences("mykey",MODE_PRIVATE);
+        SharedPreferences.Editor editor=sP.edit();
+        editor.putString("value",code);
+        editor.apply();*/
+        if(code.equals("1")){
+            url="search_video_database?search="+urli;
+        }else if(code.equals("2")){
+            url="search_audio_database?search="+urli;
+        }else{
+            url="search_pdf_database?search="+urli;
+        }
 
+        recyclerView=(RecyclerView)findViewById(R.id.recyclerView);
         getSearchDataList();
-        return InputFragmentView;
     }
+
     public void getSearchDataList(){
         // display a progress dialog
-        final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+        final ProgressDialog progressDialog = new ProgressDialog(SearchFragment.this);
         progressDialog.setCancelable(false); // set cancelable to false
         progressDialog.setMessage("Please Wait"); // set message
         progressDialog.show(); // show progress dialog
 
-        (ApiSVL.getClient().getVideosList()).enqueue(new Callback<VideoListResponse>() {
+        ApiSVL.getClient().getVideosList(url).enqueue(new Callback<VideoListResponse>() {
             @Override
             public void onResponse(Call<VideoListResponse> call, Response<VideoListResponse> response) {
                 progressDialog.dismiss();
                 if(response.body().getCount()==0){
-                    Toast.makeText(getActivity(), "Sorry, No result :(", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SearchFragment.this, "Sorry, No result :(", Toast.LENGTH_SHORT).show();
                 }else{
                     //Toast.makeText(getActivity(), response.body().getCount().toString(), Toast.LENGTH_SHORT).show();
                     Data = response.body().getResults();
-                    //Toast.makeText(getActivity(), response.body().getCount(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(SearchFragment.this, Data.get(0).getUrl().toString(), Toast.LENGTH_SHORT).show();
                     setDataInRecyclerView();
                 }
 
@@ -60,17 +83,18 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void onFailure(Call<VideoListResponse> call, Throwable t) {
-                Toast.makeText(getActivity(), t.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(SearchFragment.this, t.toString(), Toast.LENGTH_SHORT).show();
                 progressDialog.dismiss(); //dismiss progress dialog
             }
         });
     }
     private void setDataInRecyclerView() {
         // set a LinearLayoutManager with default vertical orientation
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        recyclerView2.setLayoutManager(linearLayoutManager);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SearchFragment.this);
+        recyclerView.setLayoutManager(linearLayoutManager);
         // call the constructor of UsersAdapter to send the reference and data to Adapter
-        SearchAdapter searchAdapter = new SearchAdapter(getActivity(), Data);
-        recyclerView2.setAdapter(searchAdapter); // set the Adapter to RecyclerView
+        UsersAdapter usersAdapter = new UsersAdapter(SearchFragment.this, Data);
+        recyclerView.setAdapter(usersAdapter); // set the Adapter to RecyclerView
     }
+
 }

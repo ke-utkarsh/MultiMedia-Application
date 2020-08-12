@@ -1,6 +1,7 @@
 package com.example.projecttwo;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -28,6 +29,7 @@ public class Videos extends Fragment {
     List<Result> videoListResponseData;
     ImageButton ib;
     EditText et;
+    String fet;
     public Videos() {}
 
     @Override
@@ -40,21 +42,7 @@ public class Videos extends Fragment {
         ib.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String fet="";
-                fet=et.getText().toString();
-                if(fet.length()>0){
-                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString("search",fet);
-                    editor.apply();
-                    Fragment frog=new SearchFragment();
-                    FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                    transaction.replace(R.id.viewPager, frog);
-                    transaction.addToBackStack(null);
-                    transaction.commit();
-                }else{
-                    Toast.makeText(getActivity(), "What do you wanna search?", Toast.LENGTH_SHORT).show();
-                }
+                goToSearch();
 
             }
         });
@@ -91,5 +79,17 @@ public class Videos extends Fragment {
         // call the constructor of UsersAdapter to send the reference and data to Adapter
         UsersAdapter usersAdapter = new UsersAdapter(getActivity(), videoListResponseData);
         recyclerView.setAdapter(usersAdapter); // set the Adapter to RecyclerView
+    }
+
+    public void goToSearch(){
+        fet=et.getText().toString();
+        if(fet.length()>0){
+            Intent intent=new Intent(getActivity(),SearchFragment.class);
+            intent.putExtra("urli",fet);
+            intent.putExtra("code","1");
+            startActivity(intent);
+        }else{
+            Toast.makeText(getActivity(), "What do you wanna search?", Toast.LENGTH_SHORT).show();
+        }
     }
 }

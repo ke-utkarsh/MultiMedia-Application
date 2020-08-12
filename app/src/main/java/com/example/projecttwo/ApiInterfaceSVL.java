@@ -9,15 +9,22 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Url;
 
-import static android.content.Context.MODE_PRIVATE;
 
 public interface ApiInterfaceSVL {
     //SharedPreferences myPrefs = PreferenceManager.getDefaultSharedPreferences(.getContext()); //Activity1.class
     //String ifsound = myPrefs.getString("sound","");
-    @GET("search_video_database?search=ram")
+
+    //String urli=SearchFragment.ExtraData.toString();
+
+
+
+    //String url="search_video_database?search="+urli;
+    @GET
         // API's endpoints
-    Call<VideoListResponse> getVideosList();
+    Call<VideoListResponse> getVideosList(@Url String url);
+
 
 // UserListResponse is POJO class to get the data from API, we use List<UserListResponse> in callback because the data in our API is starting from JSONArray
 
