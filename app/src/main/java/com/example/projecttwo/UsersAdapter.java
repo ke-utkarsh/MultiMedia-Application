@@ -40,6 +40,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UsersViewHol
         holder.webview.getSettings().setMediaPlaybackRequiresUserGesture(true);
         holder.webview.setWebChromeClient(new WebChromeClient());
         holder.webview.loadUrl(web);
+
     }
     @Override
     public int getItemCount() {

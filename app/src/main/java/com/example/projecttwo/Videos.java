@@ -1,10 +1,12 @@
 package com.example.projecttwo;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,6 +14,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -37,6 +40,7 @@ public class Videos extends Fragment {
                              Bundle savedInstanceState) {
         View InputFragmentView = inflater.inflate(R.layout.fragment_videos, container, false);
         recyclerView = (RecyclerView) InputFragmentView.findViewById(R.id.recyclerView);
+
         ib=(ImageButton) InputFragmentView.findViewById(R.id.imageButton);
         et=(EditText) InputFragmentView.findViewById(R.id.editText);
         ib.setOnClickListener(new View.OnClickListener() {
@@ -79,7 +83,10 @@ public class Videos extends Fragment {
         // call the constructor of UsersAdapter to send the reference and data to Adapter
         UsersAdapter usersAdapter = new UsersAdapter(getActivity(), videoListResponseData);
         recyclerView.setAdapter(usersAdapter); // set the Adapter to RecyclerView
+
     }
+
+
 
     public void goToSearch(){
         fet=et.getText().toString();

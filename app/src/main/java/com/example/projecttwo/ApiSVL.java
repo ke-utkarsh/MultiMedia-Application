@@ -1,17 +1,14 @@
 package com.example.projecttwo;
 
-import android.content.SharedPreferences;
+
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiSVL {
 
-
-    //String url=;
     private static Retrofit retrofit = null;
     public static ApiInterfaceSVL getClient() {
-
 
         // change your base URL
         if (retrofit==null) {
