@@ -13,7 +13,7 @@ public class ApiSVL {
         // change your base URL
         if (retrofit==null) {
             retrofit = new Retrofit.Builder()
-                    .baseUrl("https://vap.okli.in/v1/")
+                    .baseUrl("https://vap.okli.in/api/v1/")
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
         }

@@ -33,7 +33,11 @@ public class Videos extends Fragment {
     ImageButton ib;
     EditText et;
     String fet;
+    String urlins="video?page=";
+    String url="video";
+    int pageNumber=1;
     public Videos() {}
+    int nxt=1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,7 +54,30 @@ public class Videos extends Fragment {
 
             }
         });
-        getVideoDataList();
+        if(pageNumber==1){
+            url=urlins+Integer.toString(pageNumber);
+            pageNumber++;
+            getVideoDataList();
+        }
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (! recyclerView.canScrollVertically(1)&&nxt==1) {
+                    url=urlins+Integer.toString(pageNumber);
+                    pageNumber++;
+                    getVideoDataList();
+                }
+                /*if(!recyclerView.canScrollVertically(-1)&&pageNumber>2){
+                    pageNumber=pageNumber-2;
+                    url=urlins+Integer.toString(pageNumber);
+                    pageNumber++;
+                    getVideoDataList();
+                }*/
+            }
+        });
+        //getVideoDataList();
         return InputFragmentView;
     }
     public void getVideoDataList(){
@@ -60,11 +87,19 @@ public class Videos extends Fragment {
         progressDialog.setMessage("Please Wait"); // set message
         progressDialog.show(); // show progress dialog
 
-        (ApiVL.getClient().getVideosList()).enqueue(new Callback<VideoListResponse>() {
+        (ApiVL.getClient().getVideosList(url)).enqueue(new Callback<VideoListResponse>() {
             @Override
             public void onResponse(Call<VideoListResponse> call, Response<VideoListResponse> response) {
                 progressDialog.dismiss();
-                videoListResponseData = response.body().getResults();
+                if(pageNumber==2){
+                    videoListResponseData=response.body().getResults();
+                }else{
+                    videoListResponseData.addAll(response.body().getResults());
+                }
+
+                if(response.body().getNext()==null){
+                    nxt=0;
+                }
                 //Toast.makeText(getActivity(), response.body().getCount(), Toast.LENGTH_SHORT).show();
                 setDataInRecyclerView();
             }
@@ -82,7 +117,11 @@ public class Videos extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
         // call the constructor of UsersAdapter to send the reference and data to Adapter
         UsersAdapter usersAdapter = new UsersAdapter(getActivity(), videoListResponseData);
-        recyclerView.setAdapter(usersAdapter); // set the Adapter to RecyclerView
+        if(pageNumber==2){
+            recyclerView.setAdapter(usersAdapter); // set the Adapter to RecyclerView
+        }else{
+            usersAdapter.notifyDataSetChanged();
+        }
 
     }
 

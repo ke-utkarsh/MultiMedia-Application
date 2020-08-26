@@ -24,8 +24,8 @@ public class PdfAdapter extends RecyclerView.Adapter<PdfAdapter.PdfViewHolder> {
     }
     @Override
     public PdfViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Toast.makeText(context, "Setting things", Toast.LENGTH_SHORT).show();
-        View view = LayoutInflater.from(context).inflate(R.layout.audio_list_item, null);
+        //Toast.makeText(context, "Setting things", Toast.LENGTH_SHORT).show();
+        View view = LayoutInflater.from(context).inflate(R.layout.pdf_list_item, null);
         PdfViewHolder pdfViewHolder = new PdfViewHolder(view);
         //Toast.makeText(context, "Setting things", Toast.LENGTH_SHORT).show();
         return pdfViewHolder;

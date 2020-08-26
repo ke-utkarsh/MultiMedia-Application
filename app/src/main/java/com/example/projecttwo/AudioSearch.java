@@ -5,14 +5,12 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageButton;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -25,12 +23,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Audios extends Fragment {
-    public Audios() {}
-
+public class AudioSearch extends AppCompatActivity {
+    String urli;
     RecyclerView rv;
-    String url="audio?page=1";
     List<Result> Data;
+    String code;
+    String url;
     static TextView tv1;
     static TextView tv2;
     static TextView tv3;
@@ -38,21 +36,21 @@ public class Audios extends Fragment {
     static MediaPlayer mp;
     static Handler handler=new Handler();
     static SeekBar sb;
-    ImageButton ib;
-    EditText et;
-    String fet;
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View InputFragView =inflater.inflate(R.layout.fragment_audios, container, false);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE); //will hide the title
+        getSupportActionBar().hide(); // hide the title bar
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN); //enable full screen
+        setContentView(R.layout.fragment_audios_search);
 
-        sb=(SeekBar)InputFragView.findViewById(R.id.sb);
+        sb=(SeekBar)findViewById(R.id.sb);
         sb.setMax(100);
-        rv=(RecyclerView)InputFragView.findViewById(R.id.recyclerView);
-        tv1=(TextView)InputFragView.findViewById(R.id.title);
-        tv2=(TextView)InputFragView.findViewById(R.id.textCurrentTime);
-        tv3=(TextView)InputFragView.findViewById(R.id.textTotalDuration);
-        iv=(ImageView)InputFragView.findViewById(R.id.imagePlayPause);
+        rv=(RecyclerView)findViewById(R.id.recyclerView);
+        tv1=(TextView)findViewById(R.id.title);
+        tv2=(TextView)findViewById(R.id.textCurrentTime);
+        tv3=(TextView)findViewById(R.id.textTotalDuration);
+        iv=(ImageView)findViewById(R.id.imagePlayPause);
         mp=new MediaPlayer();
         iv.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,33 +67,14 @@ public class Audios extends Fragment {
             }
         });
 
-        ib=(ImageButton) InputFragView.findViewById(R.id.imageButton);
-        et=(EditText) InputFragView.findViewById(R.id.editText);
-        ib.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goToSearch();
-
-            }
-        });
-        getAudioDataList();
-        return InputFragView;
+        Intent intent=getIntent();
+        urli=intent.getStringExtra("urli");
+        url="search_audio_database?search="+urli;
+        getSetGo();
     }
-
-    public void goToSearch(){
-        fet=et.getText().toString();
-        if(fet.length()>0){
-            Intent intent=new Intent(getActivity(),AudioSearch.class);
-            intent.putExtra("urli",fet);
-            startActivity(intent);
-        }else{
-            Toast.makeText(getActivity(), "What do you wanna search?", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public void getAudioDataList(){
+    public void getSetGo(){
         // display a progress dialog
-        final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+        final ProgressDialog progressDialog = new ProgressDialog(AudioSearch.this);
         progressDialog.setCancelable(false); // set cancelable to false
         progressDialog.setMessage("Please Wait"); // set message
         progressDialog.show(); // show progress dialog
@@ -105,33 +84,24 @@ public class Audios extends Fragment {
             public void onResponse(Call<VideoListResponse> call, Response<VideoListResponse> response) {
                 progressDialog.dismiss();
                 Data = response.body().getResults();
-                setDataInRecyclerView();
+                setAudioDataInRecyclerView();
             }
 
             @Override
             public void onFailure(Call<VideoListResponse> call, Throwable t) {
-                Toast.makeText(getActivity(), t.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(AudioSearch.this, t.toString(), Toast.LENGTH_SHORT).show();
                 progressDialog.dismiss(); //dismiss progress dialog
             }
         });
 
     }
-    public void setDataInRecyclerView(){
-        // set a LinearLayoutManager with default vertical orientation
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        rv.setLayoutManager(linearLayoutManager);
-        // call the constructor of UsersAdapter to send the reference and data to Adapter
-        AudioAdapter audioAdapter = new AudioAdapter(getActivity(), Data);
-        rv.setAdapter(audioAdapter); // set the Adapter to RecyclerView
-    }
 
-    public static void onClickCalled(String url, String Title)  {
-
-        tv1.setText(Title);
+    public static void onKhaleed(String a, String b){
+        tv1.setText(b);
         mp.reset();
         iv.setImageResource(R.drawable.ic_pause);
         try {
-            mp.setDataSource(url);
+            mp.setDataSource(a);
             mp.prepare();
             tv3.setText(millisecondsToTimer(mp.getDuration()));
             mp.start();
@@ -139,7 +109,15 @@ public class Audios extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    public void setAudioDataInRecyclerView(){
+        // set a LinearLayoutManager with default vertical orientation
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(AudioSearch.this);
+        rv.setLayoutManager(linearLayoutManager);
+        // call the constructor of UsersAdapter to send the reference and data to Adapter
+        AudioSearchAdapter audioSearchAdapter = new AudioSearchAdapter(AudioSearch.this, Data);
+        rv.setAdapter(audioSearchAdapter); // set the Adapter to RecyclerView
     }
 
     private static Runnable updater=new Runnable() {
