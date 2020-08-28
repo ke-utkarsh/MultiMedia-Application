@@ -17,10 +17,10 @@ import java.util.List;
 
 public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHolder> {
     Context context;
-    List<Result> Data;
+    List<Result2> Data;
 
 
-    public AudioAdapter(Context context, List<Result> userListResponseData) {
+    public AudioAdapter(Context context, List<Result2> userListResponseData) {
         this.Data = userListResponseData;
         this.context = context;
         //Toast.makeText(context, "Setting things", Toast.LENGTH_SHORT).show();
@@ -40,8 +40,8 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "Loading Your Music... Please Wait", Toast.LENGTH_SHORT).show();
-                Audios.onClickCalled(Data.get(position).getUrl(),Data.get(position).getTitle());
+                Toast.makeText(context, "Loading Your Music... Please Wait", Toast.LENGTH_LONG).show();
+                Audios.onClickCalled(Data.get(position).getUrl(),Data.get(position).getTitle(),context);
             }
         });
     }

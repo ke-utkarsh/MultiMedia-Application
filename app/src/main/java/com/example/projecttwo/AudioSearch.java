@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,13 +27,15 @@ import retrofit2.Response;
 public class AudioSearch extends AppCompatActivity {
     String urli;
     RecyclerView rv;
-    List<Result> Data;
+    List<Result2> Data;
     String code;
     String url;
     static TextView tv1;
     static TextView tv2;
     static TextView tv3;
     static ImageView iv;
+    int pageNumber=1;
+    int nxt=1;
     static MediaPlayer mp;
     static Handler handler=new Handler();
     static SeekBar sb;
@@ -69,8 +72,25 @@ public class AudioSearch extends AppCompatActivity {
 
         Intent intent=getIntent();
         urli=intent.getStringExtra("urli");
-        url="search_audio_database?search="+urli;
+        url="search_audio?search="+urli;
+        nxt=1;
+        pageNumber=1;
+        url=url+"&page="+pageNumber;
+        pageNumber++;
         getSetGo();
+
+        rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (! recyclerView.canScrollVertically(1)&&nxt==1) {
+                    url="search_audio?search="+urli;
+                    url=url+"&page="+pageNumber;
+                    pageNumber++;
+                    getSetGo();
+                }
+            }
+        });
     }
     public void getSetGo(){
         // display a progress dialog
@@ -79,16 +99,24 @@ public class AudioSearch extends AppCompatActivity {
         progressDialog.setMessage("Please Wait"); // set message
         progressDialog.show(); // show progress dialog
 
-        ApiSVL.getClient().getVideosList(url).enqueue(new Callback<VideoListResponse>() {
+        ApiSVL.getClient().getVideosList(url).enqueue(new Callback<VideoListResponse2>() {
             @Override
-            public void onResponse(Call<VideoListResponse> call, Response<VideoListResponse> response) {
+            public void onResponse(Call<VideoListResponse2> call, Response<VideoListResponse2> response) {
                 progressDialog.dismiss();
-                Data = response.body().getResults();
+                if(pageNumber==2){
+                    Data = response.body().getResults();
+                }else{
+                    Data.addAll(response.body().getResults());
+                }
+                if(response.body().getNext()==null){
+                    nxt=0;
+                }
+                //Data = response.body().getResults();
                 setAudioDataInRecyclerView();
             }
 
             @Override
-            public void onFailure(Call<VideoListResponse> call, Throwable t) {
+            public void onFailure(Call<VideoListResponse2> call, Throwable t) {
                 Toast.makeText(AudioSearch.this, t.toString(), Toast.LENGTH_SHORT).show();
                 progressDialog.dismiss(); //dismiss progress dialog
             }
@@ -117,7 +145,12 @@ public class AudioSearch extends AppCompatActivity {
         rv.setLayoutManager(linearLayoutManager);
         // call the constructor of UsersAdapter to send the reference and data to Adapter
         AudioSearchAdapter audioSearchAdapter = new AudioSearchAdapter(AudioSearch.this, Data);
-        rv.setAdapter(audioSearchAdapter); // set the Adapter to RecyclerView
+        if(pageNumber==2){
+            rv.setAdapter(audioSearchAdapter); // set the Adapter to RecyclerView
+        }else{
+            audioSearchAdapter.notifyDataSetChanged();
+            rv.scrollToPosition((pageNumber-2)*10);
+        }
     }
 
     private static Runnable updater=new Runnable() {

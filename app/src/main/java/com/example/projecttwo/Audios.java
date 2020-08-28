@@ -1,10 +1,12 @@
 package com.example.projecttwo;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,12 +27,15 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.widget.Toast.LENGTH_LONG;
+
 public class Audios extends Fragment {
     public Audios() {}
 
     RecyclerView rv;
-    String url="audio?page=1";
-    List<Result> Data;
+    String urlins="audio?page=";
+    String url="audio";
+    List<Result2> Data;
     static TextView tv1;
     static TextView tv2;
     static TextView tv3;
@@ -41,6 +46,9 @@ public class Audios extends Fragment {
     ImageButton ib;
     EditText et;
     String fet;
+    int nxt=1;
+    int pageNumber=1;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -49,11 +57,44 @@ public class Audios extends Fragment {
         sb=(SeekBar)InputFragView.findViewById(R.id.sb);
         sb.setMax(100);
         rv=(RecyclerView)InputFragView.findViewById(R.id.recyclerView);
+        nxt=1;
+        pageNumber=1;
+        url=urlins+Integer.toString(pageNumber);
+        pageNumber++;
+        getAudioDataList();
+
+
+        rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (! recyclerView.canScrollVertically(1)&&nxt==1) {
+                    url=urlins+Integer.toString(pageNumber);
+                    pageNumber++;
+                    getAudioDataList();
+                }
+                /*if(!recyclerView.canScrollVertically(-1)&&pageNumber>2){
+                    pageNumber=pageNumber-2;
+                    url=urlins+Integer.toString(pageNumber);
+                    pageNumber++;
+                    getVideoDataList();
+                }*/
+            }
+        });
+        getAudioDataList();
         tv1=(TextView)InputFragView.findViewById(R.id.title);
         tv2=(TextView)InputFragView.findViewById(R.id.textCurrentTime);
         tv3=(TextView)InputFragView.findViewById(R.id.textTotalDuration);
         iv=(ImageView)InputFragView.findViewById(R.id.imagePlayPause);
         mp=new MediaPlayer();
+        /*mp.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+            @Override
+            public void onBufferingUpdate(MediaPlayer mp, int percent) {
+                if(percent==100){
+                    pd.dismiss();
+                }
+            }
+        });*/
         iv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,7 +119,7 @@ public class Audios extends Fragment {
 
             }
         });
-        getAudioDataList();
+        //getAudioDataList();
         return InputFragView;
     }
 
@@ -100,16 +141,24 @@ public class Audios extends Fragment {
         progressDialog.setMessage("Please Wait"); // set message
         progressDialog.show(); // show progress dialog
 
-        ApiSVL.getClient().getVideosList(url).enqueue(new Callback<VideoListResponse>() {
+        ApiSVL.getClient().getVideosList(url).enqueue(new Callback<VideoListResponse2>() {
             @Override
-            public void onResponse(Call<VideoListResponse> call, Response<VideoListResponse> response) {
+            public void onResponse(Call<VideoListResponse2> call, Response<VideoListResponse2> response) {
                 progressDialog.dismiss();
-                Data = response.body().getResults();
+                if(pageNumber==2){
+                    Data = response.body().getResults();
+                }else{
+                    Data.addAll(response.body().getResults());
+                }
+                if(response.body().getNext()==null){
+                    nxt=0;
+                }
+
                 setDataInRecyclerView();
             }
 
             @Override
-            public void onFailure(Call<VideoListResponse> call, Throwable t) {
+            public void onFailure(Call<VideoListResponse2> call, Throwable t) {
                 Toast.makeText(getActivity(), t.toString(), Toast.LENGTH_SHORT).show();
                 progressDialog.dismiss(); //dismiss progress dialog
             }
@@ -122,11 +171,21 @@ public class Audios extends Fragment {
         rv.setLayoutManager(linearLayoutManager);
         // call the constructor of UsersAdapter to send the reference and data to Adapter
         AudioAdapter audioAdapter = new AudioAdapter(getActivity(), Data);
-        rv.setAdapter(audioAdapter); // set the Adapter to RecyclerView
+        if(pageNumber==2){
+            rv.setAdapter(audioAdapter); // set the Adapter to RecyclerView
+        }else{
+            audioAdapter.notifyDataSetChanged();
+            rv.scrollToPosition((pageNumber-2)*10);
+        }
     }
 
-    public static void onClickCalled(String url, String Title)  {
-
+    public static void onClickCalled(String url, String Title, final Context context)  {
+        // display a progress dialog
+        //final ProgressDialog pd = new ProgressDialog(context);
+        //pd.setCancelable(false); // set cancelable to false
+        //pd.setMessage("Please Wait"); // set message
+        //pd.show(); // show progress dialog
+        Toast.makeText(context,"Setting Music Player.. Please Wait",LENGTH_LONG);
         tv1.setText(Title);
         mp.reset();
         iv.setImageResource(R.drawable.ic_pause);
@@ -136,6 +195,9 @@ public class Audios extends Fragment {
             tv3.setText(millisecondsToTimer(mp.getDuration()));
             mp.start();
             updateSeekBar();
+            /*if(mp.isPlaying()){
+                pd.dismiss();
+            }*/
         } catch (IOException e) {
             e.printStackTrace();
         }

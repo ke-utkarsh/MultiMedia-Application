@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,13 +24,16 @@ import retrofit2.Response;
 public class PDF extends Fragment {
     public PDF() {}
     RecyclerView rv;
-    String url="document?page=1";
+    String urlins="document?page=";
+    String url="document";
     List<Result> Data;
     public static Intent browserIntent;
     static String pdf_url;
     ImageButton ib;
     EditText et;
     String fet;
+    int pageNumber;
+    int nxt=1;
 
 
     @Override
@@ -39,6 +43,24 @@ public class PDF extends Fragment {
         rv=(RecyclerView) InputView.findViewById(R.id.recyclerView);
         ib=(ImageButton) InputView.findViewById(R.id.imageButton);
         et=(EditText) InputView.findViewById(R.id.editText);
+        nxt=1;
+        pageNumber=1;
+        url=urlins+Integer.toString(pageNumber);
+        pageNumber++;
+        getPdfDataList();
+
+
+        rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (! recyclerView.canScrollVertically(1)&&nxt==1) {
+                    url=urlins+Integer.toString(pageNumber);
+                    pageNumber++;
+                    getPdfDataList();
+                }
+            }
+        });
         ib.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -46,7 +68,7 @@ public class PDF extends Fragment {
 
             }
         });
-        getSearchDataList();
+        getPdfDataList();
         return InputView;
 
     }
@@ -64,23 +86,28 @@ public class PDF extends Fragment {
     }
 
 
-    public void getSearchDataList() {
+    public void getPdfDataList() {
         // display a progress dialog
         final ProgressDialog progressDialog = new ProgressDialog(getActivity());
         progressDialog.setCancelable(false); // set cancelable to false
         progressDialog.setMessage("Please Wait"); // set message
         progressDialog.show(); // show progress dialog
 
-        ApiSVL.getClient().getVideosList(url).enqueue(new Callback<VideoListResponse>() {
+        ApiAVL.getClient().getVideosList(url).enqueue(new Callback<VideoListResponse>() {
             @Override
             public void onResponse(Call<VideoListResponse> call, Response<VideoListResponse> response) {
                 progressDialog.dismiss();
                 if(response.body().getCount()==0){
                     Toast.makeText(getActivity(), "Sorry, No result :(", Toast.LENGTH_SHORT).show();
                 }else{
-                    //Toast.makeText(getActivity(), response.body().getCount().toString(), Toast.LENGTH_SHORT).show();
-                    Data = response.body().getResults();
-
+                    if(pageNumber==2){
+                        Data = response.body().getResults();
+                    }else{
+                        Data.addAll(response.body().getResults());
+                    }
+                    if(response.body().getNext()==null){
+                        nxt=0;
+                    }
                     setDataInRecyclerView();
                 }
 
@@ -99,7 +126,13 @@ public class PDF extends Fragment {
         rv.setLayoutManager(linearLayoutManager);
         // call the constructor of UsersAdapter to send the reference and data to Adapter
         PdfAdapter pdfAdapter = new PdfAdapter(getActivity(), Data);
-        rv.setAdapter(pdfAdapter); // set the Adapter to RecyclerView
+        if(pageNumber==2){
+            rv.setAdapter(pdfAdapter); // set the Adapter to RecyclerView
+        }else{
+            pdfAdapter.notifyDataSetChanged();
+            rv.scrollToPosition((pageNumber-2)*10);
+        }
+
     }
 
     /*public void onClickCalled(String url, String title){

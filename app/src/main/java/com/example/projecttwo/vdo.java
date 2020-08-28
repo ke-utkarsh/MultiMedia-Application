@@ -1,6 +1,7 @@
 package com.example.projecttwo;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
@@ -22,6 +23,11 @@ public class vdo extends AppCompatActivity {
         WindowManager.LayoutParams.FLAG_FULLSCREEN); //enable full screen
 
         setContentView(R.layout.activity_vdo);
+        // display a progress dialog
+        final ProgressDialog progressDialog = new ProgressDialog(vdo.this);
+        progressDialog.setCancelable(false); // set cancelable to false
+        progressDialog.setMessage("Please Wait"); // set message
+        progressDialog.show(); // show progress dialog
 
         String val=getIntent().getStringExtra("url");
         WebView wb=(WebView)findViewById(R.id.webView);
@@ -32,6 +38,8 @@ public class vdo extends AppCompatActivity {
         wb.getSettings().setMediaPlaybackRequiresUserGesture(true);
         wb.setWebChromeClient(new WebChromeClient());
         wb.loadUrl(val);
+
+        progressDialog.dismiss();
 
     }
 }

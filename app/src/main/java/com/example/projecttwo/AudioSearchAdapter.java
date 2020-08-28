@@ -11,10 +11,10 @@ import java.util.List;
 
 public class AudioSearchAdapter extends RecyclerView.Adapter<AudioSearchAdapter.AudioSearchViewHolder> {
     Context context;
-    List<Result> Data;
+    List<Result2> Data;
 
 
-    public AudioSearchAdapter(Context context, List<Result> userListResponseData) {
+    public AudioSearchAdapter(Context context, List<Result2> userListResponseData) {
         this.Data = userListResponseData;
         this.context = context;
         //Toast.makeText(context, "Setting things", Toast.LENGTH_SHORT).show();

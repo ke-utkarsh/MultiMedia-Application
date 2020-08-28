@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -32,6 +33,8 @@ public class SearchFragment extends AppCompatActivity {
     List<Result> Data;
     String code;
     String url;
+    int pageNumber=1;
+    int nxt=1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,14 +55,39 @@ public class SearchFragment extends AppCompatActivity {
         recyclerView=(RecyclerView)findViewById(R.id.recyclerView);
 
         if(code.equals("1")){
-            url="search_video_database?search="+urli;
+            url="search_video?search="+urli;
+            nxt=1;
+            pageNumber=1;
+            url=url+"&page="+pageNumber;
+            pageNumber++;
             getSearchDataList();
         }
         else{
-            url="search_document_database?search="+urli;
+            url="search_document?search="+urli;
+            nxt=1;
+            pageNumber=1;
+            url=url+"&page="+pageNumber;
+            pageNumber++;
             getPdfDataList();
         }
-
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (! recyclerView.canScrollVertically(1)&&nxt==1&&code.equals("1")) {
+                    url="search_video?search="+urli;
+                    url=url+"&page="+pageNumber;
+                    pageNumber++;
+                    getSearchDataList();
+                }
+                if(!recyclerView.canScrollVertically(1)&&nxt==1&&code.equals("2")){
+                    url="search_document?search="+urli;
+                    url=url+"&page="+pageNumber;
+                    pageNumber++;
+                    getPdfDataList();
+                }
+            }
+        });
 
     }
 
@@ -70,7 +98,7 @@ public class SearchFragment extends AppCompatActivity {
         progressDialog.setMessage("Please Wait"); // set message
         progressDialog.show(); // show progress dialog
 
-        ApiSVL.getClient().getVideosList(url).enqueue(new Callback<VideoListResponse>() {
+        ApiAVL.getClient().getVideosList(url).enqueue(new Callback<VideoListResponse>() {
             @Override
             public void onResponse(Call<VideoListResponse> call, Response<VideoListResponse> response) {
                 progressDialog.dismiss();
@@ -78,7 +106,14 @@ public class SearchFragment extends AppCompatActivity {
                     Toast.makeText(SearchFragment.this, "Sorry, No result :(", Toast.LENGTH_SHORT).show();
                 }else{
                     //Toast.makeText(getActivity(), response.body().getCount().toString(), Toast.LENGTH_SHORT).show();
-                    Data = response.body().getResults();
+                    if(pageNumber==2){
+                        Data = response.body().getResults();
+                    }else{
+                        Data.addAll(response.body().getResults());
+                    }
+                    if(response.body().getNext()==null){
+                        nxt=0;
+                    }
 
                     setPdfDataInRecyclerView();
                 }
@@ -101,7 +136,7 @@ public class SearchFragment extends AppCompatActivity {
         progressDialog.setMessage("Please Wait"); // set message
         progressDialog.show(); // show progress dialog
 
-        ApiSVL.getClient().getVideosList(url).enqueue(new Callback<VideoListResponse>() {
+        ApiVL.getClient().getVideosList(url).enqueue(new Callback<VideoListResponse>() {
             @Override
             public void onResponse(Call<VideoListResponse> call, Response<VideoListResponse> response) {
                 progressDialog.dismiss();
@@ -109,7 +144,14 @@ public class SearchFragment extends AppCompatActivity {
                     Toast.makeText(SearchFragment.this, "Sorry, No result :(", Toast.LENGTH_SHORT).show();
                 }else{
                     //Toast.makeText(getActivity(), response.body().getCount().toString(), Toast.LENGTH_SHORT).show();
-                    Data = response.body().getResults();
+                    if(pageNumber==2){
+                        Data = response.body().getResults();
+                    }else{
+                        Data.addAll(response.body().getResults());
+                    }
+                    if(response.body().getNext()==null){
+                        nxt=0;
+                    }
                     //Toast.makeText(SearchFragment.this, Data.get(0).getUrl().toString(), Toast.LENGTH_SHORT).show();
                     setVideoDataInRecyclerView();
                 }
@@ -130,7 +172,12 @@ public class SearchFragment extends AppCompatActivity {
         // call the constructor of UsersAdapter to send the reference and data to Adapter
         //int f=0;
         UsersAdapter usersAdapter = new UsersAdapter(SearchFragment.this, Data);
-        recyclerView.setAdapter(usersAdapter); // set the Adapter to RecyclerView
+        if(pageNumber==2){
+            recyclerView.setAdapter(usersAdapter); // set the Adapter to RecyclerView
+        }else{
+            usersAdapter.notifyDataSetChanged();
+            recyclerView.scrollToPosition((pageNumber-2)*10);
+        }
     }
     private void setPdfDataInRecyclerView(){
         // set a LinearLayoutManager with default vertical orientation
@@ -138,7 +185,12 @@ public class SearchFragment extends AppCompatActivity {
         recyclerView.setLayoutManager(linearLayoutManager);
         // call the constructor of UsersAdapter to send the reference and data to Adapter
         PdfAdapter pdfAdapter = new PdfAdapter(SearchFragment.this, Data);
-        recyclerView.setAdapter(pdfAdapter); // set the Adapter to RecyclerView
+        if(pageNumber==2){
+            recyclerView.setAdapter(pdfAdapter); // set the Adapter to RecyclerView
+        }else{
+            pdfAdapter.notifyDataSetChanged();
+            recyclerView.scrollToPosition((pageNumber-2)*10);
+        }
     }
 
 }

@@ -54,11 +54,13 @@ public class Videos extends Fragment {
 
             }
         });
-        if(pageNumber==1){
-            url=urlins+Integer.toString(pageNumber);
-            pageNumber++;
-            getVideoDataList();
-        }
+
+        nxt=1;
+        pageNumber=1;
+        url=urlins+Integer.toString(pageNumber);
+        pageNumber++;
+        getVideoDataList();
+
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -77,7 +79,7 @@ public class Videos extends Fragment {
                 }*/
             }
         });
-        //getVideoDataList();
+        getVideoDataList();
         return InputFragmentView;
     }
     public void getVideoDataList(){
@@ -121,6 +123,7 @@ public class Videos extends Fragment {
             recyclerView.setAdapter(usersAdapter); // set the Adapter to RecyclerView
         }else{
             usersAdapter.notifyDataSetChanged();
+            recyclerView.scrollToPosition((pageNumber-2)*10);
         }
 
     }
